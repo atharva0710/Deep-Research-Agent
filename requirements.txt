@@ -4,3 +4,5 @@ requests
 trafilatura
 beautifulsoup4
 python-dotenv
+tenacity
+streamlit

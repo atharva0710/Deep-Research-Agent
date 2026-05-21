@@ -1,0 +1,49 @@
+{
+  "test_cases": [
+    {
+      "id": "adv_eval_001",
+      "type": "conflict_resolution",
+      "turns": [
+        {
+          "query": "Is moderate coffee consumption linked to higher or lower risk of heart disease?",
+          "eval_params": {
+            "must_flag_conflict": true,
+            "requires_authoritative_source": true,
+            "expected_themes": ["lower risk", "antioxidants", "conflicting studies on unfiltered coffee"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "adv_eval_002",
+      "type": "multi_turn_memory",
+      "turns": [
+        {
+          "query": "Find the top 3 electric vehicles released in 2024.",
+          "eval_params": {
+            "expected_themes": ["2024"]
+          }
+        },
+        {
+          "query": "Which of those has the fastest charging time?",
+          "eval_params": {
+            "requires_memory_continuity": true,
+            "must_cite_sources": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "adv_eval_003",
+      "type": "insufficient_evidence",
+      "turns": [
+        {
+          "query": "What exact stock portfolio did Nikola Tesla own when he died?",
+          "eval_params": {
+            "must_refuse": true
+          }
+        }
+      ]
+    }
+  ]
+}

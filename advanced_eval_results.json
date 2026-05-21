@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "Total Turns Evaluated": 4,
+    "Avg Grounding Score (LLM Judge)": 0.0,
+    "Avg Context Compression Ratio": 0.0,
+    "Avg Authoritative Presence": 0.0,
+    "Avg Citation Density": 0.0,
+    "Avg Uncertainty Handling": 0.75
+  },
+  "detailed_results": [
+    {
+      "case_id": "adv_eval_001",
+      "query": "Is moderate coffee consumption linked to higher or lower risk of heart disease?",
+      "metrics": {
+        "authoritative_presence": 0.0,
+        "compression_ratio": 0.0,
+        "citation_density": 0.0,
+        "grounding_score": 0.0,
+        "uncertainty_score": 1.0
+      }
+    },
+    {
+      "case_id": "adv_eval_002",
+      "query": "Find the top 3 electric vehicles released in 2024.",
+      "metrics": {
+        "authoritative_presence": 0.0,
+        "compression_ratio": 0.0,
+        "citation_density": 0.0,
+        "grounding_score": 0.0,
+        "uncertainty_score": 1.0
+      }
+    },
+    {
+      "case_id": "adv_eval_002",
+      "query": "Which of those has the fastest charging time?",
+      "metrics": {
+        "authoritative_presence": 0.0,
+        "compression_ratio": 0.0,
+        "citation_density": 0.0,
+        "grounding_score": 0.0,
+        "uncertainty_score": 1.0
+      }
+    },
+    {
+      "case_id": "adv_eval_003",
+      "query": "What exact stock portfolio did Nikola Tesla own when he died?",
+      "metrics": {
+        "authoritative_presence": 0.0,
+        "compression_ratio": 0.0,
+        "citation_density": 0.0,
+        "grounding_score": 0.0,
+        "uncertainty_score": 0.0
+      }
+    }
+  ]
+}

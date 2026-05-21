@@ -3,6 +3,7 @@ import logging
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Configure logging for this module
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
@@ -23,6 +24,24 @@ def _get_gemini_client():
     # Initialize the new genai client
     return genai.Client(api_key=api_key)
 
+# Add automatic retries for 503 server overloads
+@retry(
+    stop=stop_after_attempt(4), # Try up to 4 times
+    wait=wait_exponential(multiplier=1.5, min=2, max=10), # Wait 2s, then 3s, then 4.5s... up to 10s
+    reraise=True
+)
+def _generate_with_retry(client, prompt: str) -> str:
+    """Helper function to execute the API call with tenacity retries."""
+    logger.info("Sending prompt to Gemini API...")
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.2, 
+        )
+    )
+    return response.text
+
 def generate_answer(prompt: str) -> str:
     """
     Sends a prompt to the Gemini API and returns the generated answer.
@@ -35,26 +54,14 @@ def generate_answer(prompt: str) -> str:
         
     Raises:
         ValueError: If the prompt is empty.
-        Exception: If the API call fails.
+        Exception: If the API call fails after all retries.
     """
     if not prompt or not prompt.strip():
         raise ValueError("The provided prompt is empty.")
 
     try:
         client = _get_gemini_client()
-        
-        logger.info("Sending prompt to Gemini API...")
-        
-        # Use the new API format and we'll use the reliable gemini-2.5-flash model
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.2, 
-            )
-        )
-        
-        return response.text
+        return _generate_with_retry(client, prompt)
         
     except Exception as e:
         logger.error(f"Error during Gemini API generation: {e}")

@@ -125,11 +125,11 @@ REQUIREMENTS:
         print_progress("Updating session summary")
         update_rolling_summary(session_id, summary, question, final_answer)
         
-        return final_answer
+        return final_answer, sources, selected_chunks
 
     except Exception as e:
         print(f"\n[-] Pipeline encountered an error: {e}")
-        return f"Error: {str(e)}"
+        return f"Error: {str(e)}", [], []
 
 if __name__ == "__main__":
     print("===========================================")
