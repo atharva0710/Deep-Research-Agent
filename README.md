@@ -9,7 +9,7 @@ The system is divided into modular, highly decoupled components:
 - **Search Engine (`search.py`)**: Interfaces with the Tavily API to dynamically retrieve a curated list of relevant URLs and snippets based on the user's query.
 - **Content Extractor (`fetch.py`)**: Downloads web pages and parses readable article text while stripping HTML boilerplate (using Trafilatura and Requests).
 - **Context Builder (`context_builder.py`)**: Chunks large documents, applies a lightweight TF-based relevance scoring algorithm, and truncates the context payload to optimize the LLM's context window.
-- **Answer Generator (`answer.py`)**: Structures the final prompt enforcing strict citation rules and uncertainty statements, interacting with Google's Gemini 1.5 Flash.
+- **Answer Generator (`answer.py`)**: Structures the final prompt enforcing strict citation rules and uncertainty statements, interacting with Groq's openai/gpt-oss-120b model.
 - **Session Memory (`memory.py`)**: Provides a persistent SQLite-backed storage system tracking conversational turns, search metrics, and generating rolling summaries for multi-turn dependency management.
 - **Evaluation Harness (`eval.py`)**: An automated testing script measuring grounding quality, citation integrity, and uncertainty handling against a predefined dataset.
 
@@ -25,14 +25,19 @@ The system is divided into modular, highly decoupled components:
 Create a `.env` file in the root directory and populate it with the required API keys. Do not commit this file to version control.
 ```env
 TAVILY_API_KEY="your_tavily_api_key_here"
-GEMINI_API_KEY="your_gemini_api_key_here"
+GROQ_API_KEY="your_groq_api_key_here"
 ```
 - A Tavily API key is required for automated web search capabilities.
-- A Google Gemini API key (via Google AI Studio) is required for answer synthesis and rolling summaries.
+- A Groq API key is required for answer synthesis and rolling summaries.
 
 ## How to Run
 
-To start the interactive research pipeline:
+To start the interactive web application (Streamlit):
+```bash
+python -m streamlit run streamlit_app.py
+```
+
+To start the interactive CLI research pipeline:
 ```bash
 python app.py
 ```
@@ -40,7 +45,7 @@ Type your query when prompted. Type `quit` or `exit` to terminate the session.
 
 To run the automated evaluation harness:
 ```bash
-python eval.py
+python advanced_eval.py
 ```
 
 ## Design Note
@@ -60,8 +65,6 @@ The project includes a custom evaluation harness (`eval.py`) paired with an eval
 ## Future Improvements
 - **Semantic Routing & RAG**: Upgrade `context_builder.py` to leverage an embedding model and a vector database for true Semantic Search rather than frequency-based scoring.
 - **Parallel Network Requests**: Refactor `fetch.py` to utilize `asyncio` and `aiohttp` to fetch multiple URLs concurrently.
-- **LLM-as-a-Judge Evaluation**: Expand the evaluation harness to utilize a larger parameter model (e.g., Gemini 1.5 Pro) to grade the final answers on logical consistency and nuance.
-- **Frontend UI**: Transition from a terminal-based CLI to a web interface using Streamlit or Gradio.
 
 ## Example Conversations
 

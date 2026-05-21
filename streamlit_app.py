@@ -200,15 +200,62 @@ STAGE_META = {
 }
 
 
-def _status_html(stage: str, detail: str = "") -> str:
+def _status_html(stage: str, detail: str = "", active: bool = True) -> str:
     """Return an HTML badge for the given pipeline stage."""
     icon, color, default_text = STAGE_META.get(stage, ("⚙️", "blue", stage))
     text = detail or default_text
+    pulse = f'<span class="pulse-dot {color}"></span>' if active else ""
     return (
         f'<div class="status-badge {stage}">'
-        f'<span class="pulse-dot {color}"></span>'
+        f'{pulse}'
         f'{icon}&ensp;{text}</div>'
     )
+
+
+class ProgressStreamer:
+    """Reusable progress manager for Streamlit operational updates."""
+    def __init__(self, container):
+        self.container = container
+        self.history = []
+        self.current_stage_start = 0.0
+
+    def start_step(self, stage: str, detail: str):
+        """Starts a new step and marks previous as inactive with timing."""
+        now = time.time()
+        if self.history:
+            # Finalize previous step with elapsed time
+            prev_stage, prev_detail, _ = self.history[-1]
+            elapsed = now - self.current_stage_start
+            self.history[-1] = (prev_stage, f"{prev_detail} ({elapsed:.1f}s)", False)
+        
+        self.current_stage_start = now
+        self.history.append((stage, detail, True))
+        self._render()
+
+    def update_step(self, stage: str, detail: str):
+        """Updates the current active step without changing timing."""
+        if self.history:
+            self.history[-1] = (stage, detail, True)
+            self._render()
+
+    def finish(self):
+        """Marks the final step as complete."""
+        now = time.time()
+        if self.history:
+            prev_stage, prev_detail, _ = self.history[-1]
+            elapsed = now - self.current_stage_start
+            self.history[-1] = (prev_stage, f"{prev_detail} ({elapsed:.1f}s)", False)
+        
+        self.history.append(("done", "Research complete", False))
+        self._render()
+
+    def error(self, err_msg: str):
+        self.history.append(("error", err_msg, False))
+        self._render()
+
+    def _render(self):
+        html_content = "".join([_status_html(s, d, a) for s, d, a in self.history])
+        self.container.markdown(html_content, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -266,19 +313,16 @@ def run_pipeline_streaming(session_id: str, question: str, status_container):
     Returns:
         (final_answer, sources, selected_chunks)
     """
+    streamer = ProgressStreamer(status_container)
     try:
         # ── Stage 1: Planning ────────────────────────────────────────────
-        status_container.markdown(_status_html("planning", "Loading session context & planning…"), unsafe_allow_html=True)
-        time.sleep(0.3)
+        streamer.start_step("planning", "Loading session context & planning…")
 
         summary = memory.get_session_summary(session_id)
         recent_history = memory.get_session_history(session_id, limit=2)
 
         # ── Stage 2: Web search ──────────────────────────────────────────
-        status_container.markdown(
-            _status_html("planning", "Session loaded") + _status_html("searching"),
-            unsafe_allow_html=True,
-        )
+        streamer.start_step("searching", "Searching the web…")
         search_results = web_search(query=question, max_results=3)
 
         opened_urls = []
@@ -286,13 +330,9 @@ def run_pipeline_streaming(session_id: str, question: str, status_container):
 
         # ── Stage 3: Fetching ────────────────────────────────────────────
         if search_results:
-            badges = (
-                _status_html("planning", "Session loaded")
-                + _status_html("searching", f"Found {len(search_results)} results")
-            )
+            streamer.update_step("searching", f"Found {len(search_results)} results")
             for i, result in enumerate(search_results):
-                badges_with_fetch = badges + _status_html("fetching", f"Fetching {i+1}/{len(search_results)}: {result['title'][:50]}…")
-                status_container.markdown(badges_with_fetch, unsafe_allow_html=True)
+                streamer.start_step("fetching", f"Fetching {i+1}/{len(search_results)}: {result['title'][:40]}…")
 
                 fetch_data = fetch_and_extract(result["url"])
                 opened_urls.append(result["url"])
@@ -304,31 +344,20 @@ def run_pipeline_streaming(session_id: str, question: str, status_container):
                     "extracted_text": fetch_data.get("extracted_text", ""),
                     "retrieved_at": fetch_data.get("retrieved_at", ""),
                 })
+            streamer.update_step("fetching", f"Fetched {len(sources)} sources")
         else:
-            badges = (
-                _status_html("planning", "Session loaded")
-                + _status_html("searching", "No results found — using existing context")
-            )
-            status_container.markdown(badges, unsafe_allow_html=True)
+            streamer.update_step("searching", "No results found — using existing context")
 
         # ── Stage 4: Context selection ───────────────────────────────────
-        base_badges = (
-            _status_html("planning", "Session loaded")
-            + _status_html("searching", f"Found {len(search_results)} results")
-            + _status_html("fetching", f"Fetched {len(sources)} sources")
-        )
-        status_container.markdown(base_badges + _status_html("selecting"), unsafe_allow_html=True)
+        streamer.start_step("selecting", "Selecting relevant context…")
 
         selected_chunks = build_context(question, sources, max_chars=8000)
         selected_snippets = [c["text"] for c in selected_chunks]
+        
+        streamer.update_step("selecting", f"Selected {len(selected_chunks)} context chunks")
 
         # ── Stage 5: Answer generation ───────────────────────────────────
-        status_container.markdown(
-            base_badges
-            + _status_html("selecting", f"Selected {len(selected_chunks)} context chunks")
-            + _status_html("generating"),
-            unsafe_allow_html=True,
-        )
+        streamer.start_step("generating", "Generating grounded answer…")
 
         prompt = _build_answer_prompt(summary, recent_history, selected_chunks, question)
         final_answer = generate_answer(prompt)
@@ -339,18 +368,12 @@ def run_pipeline_streaming(session_id: str, question: str, status_container):
         _update_rolling_summary(session_id, summary, question, final_answer)
 
         # ── Done badge ───────────────────────────────────────────────────
-        status_container.markdown(
-            base_badges
-            + _status_html("selecting", f"Selected {len(selected_chunks)} chunks")
-            + _status_html("generating", "Answer ready")
-            + _status_html("done"),
-            unsafe_allow_html=True,
-        )
+        streamer.finish()
 
         return final_answer, sources, selected_chunks
 
     except Exception as exc:
-        status_container.markdown(_status_html("error", str(exc)[:120]), unsafe_allow_html=True)
+        streamer.error(f"Pipeline error: {str(exc)[:120]}")
         return f"⚠️ Pipeline error: {exc}", [], []
 
 
@@ -363,7 +386,10 @@ def _build_answer_prompt(summary, recent_history, selected_chunks, question):
 REQUIREMENTS:
 1. NO HALLUCINATIONS: You must base your answer ONLY on the provided context. Do not use outside knowledge.
 2. EXPLICIT UNCERTAINTY: If the context does not contain enough evidence to fully answer the question, state that clearly. If the evidence is weak, note that it is weak.
-3. CITATIONS: You MUST include inline citations for every claim. Use the exact format: [Title — Domain](URL).
+3. CITATIONS: You MUST include inline markdown citations for every single claim. 
+   - Use the EXACT format: `[Title - Domain](URL)`. 
+   - Example: `The sky is blue [Space Facts - space.com](https://space.com/facts)`.
+   - DO NOT use alternative brackets like 【 】 or footnotes like [1].
 4. CONFLICTS: If different sources provide conflicting information, explicitly mention the conflict.
 5. FORMAT: Use clean Markdown for readability.
 
@@ -453,7 +479,7 @@ with st.sidebar:
     st.markdown("### ⚙️ Stack")
     st.markdown("""
     - 🔎 **Search** — Tavily API
-    - 🤖 **LLM** — Gemini 2.5 Flash
+    - 🤖 **LLM** — Groq (openai/gpt-oss-120b)
     - 🗄️ **Memory** — SQLite
     - 📜 **Scraper** — Trafilatura
     - 🚫 No LangChain / CrewAI / LlamaIndex

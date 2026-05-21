@@ -5,8 +5,7 @@ Implements both Heuristic and LLM-as-a-Judge metrics.
 import json
 import re
 from datetime import datetime
-from google import genai
-from google.genai import types
+from groq import Groq
 import os
 import time
 from dotenv import load_dotenv
@@ -18,10 +17,10 @@ import memory
 load_dotenv()
 
 def get_llm_judge():
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        raise ValueError("GEMINI_API_KEY missing for evaluation.")
-    return genai.Client(api_key=api_key)
+        raise ValueError("GROQ_API_KEY missing for evaluation.")
+    return Groq(api_key=api_key)
 
 @retry(
     stop=stop_after_attempt(5),
@@ -46,14 +45,19 @@ ANSWER:
 {answer}
 """
     try:
-        res = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.0)
+        # Import rate limiter from answer.py to share limits
+        from answer import rate_limiter
+        rate_limiter.wait_if_needed()
+        
+        res = client.chat.completions.create(
+            model='llama-3.3-70b-versatile',
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0
         )
         
         # Use regex to safely extract the score in case the model adds conversational text
-        match = re.search(r'(0\.0|1\.0|0|1)', res.text)
+        text = res.choices[0].message.content
+        match = re.search(r'(0\.0|1\.0|0|1)', text)
         if match:
             return float(match.group(1))
         return 0.0
@@ -76,13 +80,18 @@ def evaluate_turn(turn, pipeline_output):
     ) else 0.0
     
     # 2. Context Selection Quality (Compression)
-    total_raw_text = sum(len(s.get('extracted_text', '')) for s in sources)
+    total_raw_text = sum(len(s.get('extracted_text') or s.get('snippet') or '') for s in sources)
     total_chunk_text = sum(len(c['text']) for c in chunks)
     metrics["compression_ratio"] = total_chunk_text / max(total_raw_text, 1)
     
     # 3. Grounding & Citations (Heuristic)
-    sentences = max(len(re.split(r'[.!?]+', final_answer)), 1)
-    citations = len(re.findall(r'\[.*?\]\(http.*?\)', final_answer))
+    # Strip URLs to avoid counting periods in URLs as sentence boundaries
+    text_no_urls = re.sub(r'http[s]?://\S+', '', final_answer)
+    # Split only on punctuation followed by whitespace or end of string
+    sentences = max(len(re.split(r'[.!?]+(?:\s|$)', text_no_urls)), 1)
+    
+    # Count both standard Markdown citations [Title](URL) and ChatGPT-style brackets 【Title】
+    citations = len(re.findall(r'(?:\[.*?\]\(http.*?\))|(?:【.*?】)', final_answer))
     metrics["citation_density"] = min(citations / sentences, 1.0)
     
     # 4. Hallucination Check (LLM Judge)
@@ -92,7 +101,7 @@ def evaluate_turn(turn, pipeline_output):
     
     # 5. Uncertainty Handling
     if turn.get('eval_params', {}).get('must_refuse'):
-        refusal_words = ["do not have enough information", "cannot answer", "not enough info", "unclear"]
+        refusal_words = ["do not have enough information", "cannot answer", "not enough info", "unclear", "not possible to determine", "do not contain any information", "cannot be determined"]
         metrics["uncertainty_score"] = 1.0 if any(w in final_answer.lower() for w in refusal_words) else 0.0
     else:
         metrics["uncertainty_score"] = 1.0 # default pass if not a trap question
@@ -117,9 +126,8 @@ def run_advanced_eval():
         for turn in case["turns"]:
             print(f"\n>>> Executing Turn: {turn['query']}")
             
-            # Added a 15-second pause to prevent hitting the Free Tier 15 RPM limit
-            print("    [Rate Limit Protection] Pausing for 15 seconds to respect Gemini API quotas...")
-            time.sleep(15)
+            # Note: We now rely on the GroqRateLimiter built into answer.py to handle quotas.
+            # No hardcoded 15-second sleep is necessary.
             
             # Execute the actual pipeline
             ans, sources, chunks = run_research_pipeline(session_id, turn['query'])

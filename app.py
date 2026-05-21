@@ -84,7 +84,10 @@ def run_research_pipeline(session_id: str, question: str):
 REQUIREMENTS:
 1. NO HALLUCINATIONS: You must base your answer ONLY on the provided context. Do not use outside knowledge.
 2. EXPLICIT UNCERTAINTY: If the context does not contain enough evidence to fully answer the question, state that clearly. If the evidence is weak, note that it is weak.
-3. CITATIONS: You MUST include inline citations for every claim. Use the exact format: [Title — Domain](URL).
+3. CITATIONS: You MUST include inline markdown citations for every single claim. 
+   - Use the EXACT format: `[Title - Domain](URL)`. 
+   - Example: `The sky is blue [Space Facts - space.com](https://space.com/facts)`.
+   - DO NOT use alternative brackets like 【 】 or footnotes like [1].
 4. CONFLICTS: If different sources provide conflicting information, explicitly mention the conflict.
 5. FORMAT: Use clean Markdown for readability.
 
