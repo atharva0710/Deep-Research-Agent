@@ -1,0 +1,6 @@
+google-generativeai
+tavily-python
+requests
+trafilatura
+beautifulsoup4
+python-dotenv

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "eval_001",
+    "type": "factual",
+    "questions": ["What is the specific heat capacity of liquid water at 25 degrees Celsius?"],
+    "expected_themes": ["4.18", "joule", "gram", "celsius"]
+  },
+  {
+    "id": "eval_002",
+    "type": "comparison",
+    "questions": ["Compare the battery life and weight of the iPhone 14 Pro and iPhone 15 Pro."],
+    "expected_themes": ["iPhone 14 Pro", "iPhone 15 Pro", "battery", "weight", "titanium"]
+  },
+  {
+    "id": "eval_003",
+    "type": "conflicting-source",
+    "questions": ["Is daily egg consumption considered good or bad for blood cholesterol levels according to recent studies?"],
+    "expected_themes": ["cholesterol", "dietary", "conflicting", "moderation", "studies"]
+  },
+  {
+    "id": "eval_004",
+    "type": "insufficient-evidence",
+    "questions": ["What exact brand of socks did Albert Einstein wear on his 50th birthday?"],
+    "expected_themes": ["not enough information", "uncertain", "cannot answer"]
+  },
+  {
+    "id": "eval_005",
+    "type": "multi-turn",
+    "questions": [
+      "Who won the Nobel Prize in Physics in 2023?",
+      "What exactly were they awarded the prize for?",
+      "How does this relate to attosecond physics?"
+    ],
+    "expected_themes": ["Pierre Agostini", "Ferenc Krausz", "Anne L'Huillier", "electron dynamics", "attosecond"]
+  }
+]
