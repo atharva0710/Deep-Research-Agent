@@ -176,7 +176,7 @@ def prepare_context_for_prompt(
 
 REQUIREMENTS:
 1. NO HALLUCINATIONS: You must base your answer ONLY on the provided context. Do not use outside knowledge.
-2. EXPLICIT UNCERTAINTY: If the context does not contain enough evidence to fully answer the question, you MUST start your response with EXACTLY: "I do not have enough information to answer this question." Then, explain what is missing.
+2. EXPLICIT UNCERTAINTY & PARTIAL ANSWERS: If the context contains relevant information but cannot definitively or fully answer the exact prompt (e.g., no explicit ranking exists), DO NOT refuse to answer entirely. Instead, synthesize the information you DO have, explicitly state the limitations using phrases like "The sources do not specify" or "It is not explicitly mentioned", and provide the best possible partial answer. ONLY start your response with "I do not have enough information to answer this question." if the context is completely irrelevant or contains absolutely no helpful information.
 3. CITATIONS: You MUST include inline markdown citations for every single claim. 
    - Use the EXACT format: `[Title - Domain](URL)`. 
    - Example: `The sky is blue [Space Facts - space.com](https://space.com/facts)`.

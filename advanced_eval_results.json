@@ -2,13 +2,13 @@
   "summary": {
     "Total Turns Evaluated": 4,
     "Avg Grounding Score (LLM Judge)": 0.75,
-    "Avg Context Compression Ratio": 0.197,
-    "Avg Authoritative Presence": 0.25,
-    "Avg Citation Density": 0.61,
+    "Avg Context Compression Ratio": 0.192,
+    "Avg Authoritative Presence": 0.5,
+    "Avg Citation Density": 0.65,
     "Avg Uncertainty Handling": 1.0,
     "Avg Source Diversity": 1.0,
-    "Avg Conflict Resolution Score (LLM Judge)": 0.0,
-    "Avg Memory Continuity Score (LLM Judge)": 0.0
+    "Avg Conflict Resolution Score (LLM Judge)": 1.0,
+    "Avg Memory Continuity Score (LLM Judge)": 1.0
   },
   "detailed_results": [
     {
@@ -16,12 +16,12 @@
       "query": "Is moderate coffee consumption linked to higher or lower risk of heart disease?",
       "metrics": {
         "authoritative_presence": 1.0,
-        "compression_ratio": 0.1478380503144654,
-        "citation_density": 1.0,
+        "compression_ratio": 0.30480399692544197,
+        "citation_density": 0.6,
         "grounding_score": 1.0,
         "uncertainty_score": 1.0,
         "source_diversity": 1.0,
-        "conflict_score": 0.0,
+        "conflict_score": 1.0,
         "memory_score": null
       }
     },
@@ -30,9 +30,9 @@
       "query": "Find the top 3 electric vehicles released in 2024.",
       "metrics": {
         "authoritative_presence": 0.0,
-        "compression_ratio": 0.2554314513382824,
-        "citation_density": 1.0,
-        "grounding_score": 0.0,
+        "compression_ratio": 0.25763133981758823,
+        "citation_density": 0.35294117647058826,
+        "grounding_score": 1.0,
         "uncertainty_score": 1.0,
         "source_diversity": 1.0,
         "conflict_score": null,
@@ -44,22 +44,22 @@
       "query": "Which of those has the fastest charging time?",
       "metrics": {
         "authoritative_presence": 0.0,
-        "compression_ratio": 0.322518299202237,
-        "citation_density": 0.2,
-        "grounding_score": 1.0,
+        "compression_ratio": 0.14741035856573706,
+        "citation_density": 0.6666666666666666,
+        "grounding_score": 0.0,
         "uncertainty_score": 1.0,
         "source_diversity": 1.0,
         "conflict_score": null,
-        "memory_score": 0.0
+        "memory_score": 1.0
       }
     },
     {
       "case_id": "adv_eval_003",
       "query": "What exact stock portfolio did Nikola Tesla own when he died?",
       "metrics": {
-        "authoritative_presence": 0.0,
-        "compression_ratio": 0.06273756317614135,
-        "citation_density": 0.25,
+        "authoritative_presence": 1.0,
+        "compression_ratio": 0.05701930736259151,
+        "citation_density": 1.0,
         "grounding_score": 1.0,
         "uncertainty_score": 1.0,
         "source_diversity": 1.0,
