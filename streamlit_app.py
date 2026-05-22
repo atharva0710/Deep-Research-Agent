@@ -302,6 +302,45 @@ Task: Write a highly concise updated summary capturing the main facts discussed 
         pass  # Non-critical; swallow silently
 
 
+import re
+
+def rewrite_query_for_search(session_id: str, current_query: str) -> str:
+    """
+    Rewrites the user's query to resolve pronouns and coreferences based on 
+    conversation history, creating a standalone search query.
+    """
+    summary = memory.get_session_summary(session_id)
+    recent_history = memory.get_session_history(session_id, limit=2)
+    
+    if not recent_history and not summary:
+        return current_query
+        
+    prompt = f"""You are an advanced search query optimizer. 
+Your task is to analyze the conversation history and the user's new query, and rewrite the query to be a standalone, high-quality search engine query.
+
+RULES:
+1. Resolve any pronouns or coreferences (e.g. "it", "they", "those", "that company") to the actual entities discussed in previous turns.
+2. If the user's query is already standalone and does not refer to history, output the user's raw query exactly as it is.
+3. Keep the output extremely concise—only output the optimized query, and absolutely nothing else. Do not use markdown, quotes, or conversational phrases.
+
+CONVERSATION SUMMARY:
+{summary if summary else "None"}
+
+RECENT HISTORY:
+"""
+    for turn in recent_history:
+        prompt += f"User: {turn['query']}\nAgent: {turn['final_answer']}\n\n"
+        
+    prompt += f"USER'S NEW QUERY: {current_query}\n\nSTANDALONE SEARCH QUERY:"
+    
+    try:
+        rewritten = generate_answer(prompt).strip()
+        rewritten = re.sub(r'^["\'`]|["\'`]$', '', rewritten).strip()
+        return rewritten
+    except Exception:
+        return current_query
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Core: run pipeline with live status streaming
 # ─────────────────────────────────────────────────────────────────────────────
@@ -321,9 +360,14 @@ def run_pipeline_streaming(session_id: str, question: str, status_container):
         summary = memory.get_session_summary(session_id)
         recent_history = memory.get_session_history(session_id, limit=2)
 
+        # Stage 1.5: Query Optimization
+        streamer.update_step("planning", "Optimizing search query for conversational context…")
+        search_query = rewrite_query_for_search(session_id, question)
+        streamer.update_step("planning", f"Optimized query: '{search_query}'")
+
         # ── Stage 2: Web search ──────────────────────────────────────────
         streamer.start_step("searching", "Searching the web…")
-        search_results = web_search(query=question, max_results=3)
+        search_results = web_search(query=search_query, max_results=7)
 
         opened_urls = []
         sources = []
