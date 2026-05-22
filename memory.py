@@ -35,6 +35,18 @@ def init_db():
         )
     ''')
     
+    # Messages table stores independent conversation history messages
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            role TEXT,
+            content TEXT,
+            timestamp TEXT,
+            FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -55,11 +67,13 @@ def create_session() -> str:
 
 def save_turn(session_id: str, query: str, search_queries: List[str], opened_urls: List[str], 
               selected_snippets: List[str], final_answer: str):
-    """Saves a single research turn to the database."""
+    """Saves a single research turn and individual messages to the database."""
     timestamp = datetime.now(timezone.utc).isoformat()
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    
+    # Save the turn details
     cursor.execute('''
         INSERT INTO turns (session_id, query, search_queries, opened_urls, selected_snippets, final_answer, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -72,6 +86,19 @@ def save_turn(session_id: str, query: str, search_queries: List[str], opened_url
         final_answer,
         timestamp
     ))
+    
+    # Save separate user query message
+    cursor.execute('''
+        INSERT INTO messages (session_id, role, content, timestamp)
+        VALUES (?, ?, ?, ?)
+    ''', (session_id, 'user', query, timestamp))
+    
+    # Save separate assistant answer message
+    cursor.execute('''
+        INSERT INTO messages (session_id, role, content, timestamp)
+        VALUES (?, ?, ?, ?)
+    ''', (session_id, 'assistant', final_answer, timestamp))
+    
     conn.commit()
     conn.close()
 

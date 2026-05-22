@@ -8,7 +8,7 @@ The harness wraps the existing `app.py` pipeline. For each test case, it interce
 
 The evaluation is split into a **Two-Pass System**:
 1. **Heuristic Pass**: Extremely fast, deterministic calculations (Regex matching, length ratios, domain parsing).
-2. **LLM-as-a-Judge Pass**: Uses a stronger, reasoning-focused model (e.g., `gemini-1.5-pro` or `gpt-4o`) to semantically score the agent's logic, grounding, and conflict resolution based on strict rubrics.
+2. **LLM-as-a-Judge Pass**: Uses a stronger, reasoning-focused model (e.g., `llama-3.3-70b-versatile`) to semantically score the agent's logic, grounding, and conflict resolution based on strict rubrics.
 
 ---
 

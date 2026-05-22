@@ -59,7 +59,8 @@ def web_search(query: str, max_results: int = 5) -> List[Dict[str, Any]]:
                 "title": result.get("title", "No Title"),
                 "url": url,
                 "domain": domain,
-                "snippet": result.get("content", "")
+                "snippet": result.get("content", ""),
+                "score": result.get("score", 0.0)
             })
             
         logger.info(f"Successfully retrieved {len(structured_results)} results.")

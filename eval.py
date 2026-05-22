@@ -25,7 +25,7 @@ def run_evaluation():
         turn_answers = []
         for q in item['questions']:
             print(f"\n>> Eval Query: {q}")
-            ans = run_research_pipeline(session_id, q)
+            ans, _, _ = run_research_pipeline(session_id, q)
             turn_answers.append(ans)
             
         final_ans = turn_answers[-1] if turn_answers else ""
@@ -45,8 +45,22 @@ def run_evaluation():
         has_citations = len(citations) > 0
         
         # 3. Uncertainty Handling
-        # Words the model uses when it refuses to hallucinate
-        uncertainty_keywords = ["do not have enough information", "not explicitly mentioned", "cannot be answered", "not specify", "unknown"]
+        # Words the model uses when it refuses to hallucinate (expanded to support singular/plural variations)
+        uncertainty_keywords = [
+            "do not have enough information", 
+            "does not contain enough information", 
+            "does not contain information", 
+            "does not specify", 
+            "not explicitly mentioned", 
+            "does not mention", 
+            "not enough information", 
+            "not enough info", 
+            "cannot answer", 
+            "cannot be answered", 
+            "not possible to determine", 
+            "insufficient evidence",
+            "not explicitly stated"
+        ]
         expressed_uncertainty = any(kw in final_ans.lower() for kw in uncertainty_keywords)
         
         # If the question was explicitly an insufficient-evidence question, 

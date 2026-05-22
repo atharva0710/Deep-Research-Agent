@@ -1,4 +1,4 @@
-google-genai
+groq
 tavily-python
 requests
 trafilatura

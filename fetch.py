@@ -9,19 +9,24 @@ import trafilatura
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
-def fetch_and_extract(url: str) -> Dict[str, Any]:
+def fetch_and_extract(url: str, title: str = "No Title", domain: str = "") -> Dict[str, Any]:
     """
     Fetches a webpage and extracts clean, readable text using Trafilatura.
     
     Args:
         url (str): The URL of the webpage to fetch.
+        title (str): Optional title of the webpage.
+        domain (str): Optional domain of the webpage.
         
     Returns:
-        Dict[str, Any]: A dictionary containing 'extracted_text' and 'retrieved_at'.
+        Dict[str, Any]: A dictionary containing 'url', 'title', 'domain', 'extracted_text', and 'retrieved_at'.
                         If extraction fails, 'extracted_text' will be an empty string.
     """
     timestamp = datetime.now(timezone.utc).isoformat()
     result = {
+        "url": url,
+        "title": title,
+        "domain": domain,
         "extracted_text": "",
         "retrieved_at": timestamp
     }
