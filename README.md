@@ -30,14 +30,17 @@ https://github.com/user-attachments/assets/your-video-id
 ### Video Demonstration
 *Watch the Deep Research Agent in action, demonstrating live streaming steps, citation generation, and multi-turn memory.*
 
-**[ REPLACE THIS TEXT: Drag and drop your MP4/WebM video recording here when editing in GitHub ]**
+
+https://github.com/user-attachments/assets/487e1975-97e3-4a7d-96f0-434a96c4955b
+
 
 ### UI Screenshots
 *Clean, intuitive, and highly responsive Streamlit user interface.*
 
-**[ REPLACE THIS TEXT: Drag and drop a screenshot of the main UI with a completed search here ]**
+<img width="1280" height="682" alt="PHOTO-2026-05-22-17-50-59" src="https://github.com/user-attachments/assets/426aba5b-e8af-4633-ad3b-7608c9d705db" />
+<img width="1280" height="664" alt="PHOTO-2026-05-22-17-51-11" src="https://github.com/user-attachments/assets/6d430e5b-8008-41fc-a625-740c6d845306" />
+<img width="525" height="290" alt="PHOTO-2026-05-22-17-55-21" src="https://github.com/user-attachments/assets/9ede5fe3-ee21-430f-9ef0-ef324f1799a6" />
 
-**[ REPLACE THIS TEXT: Drag and drop a screenshot showing the expanded "📚 View Sources" tab ]**
 
 ---
 
