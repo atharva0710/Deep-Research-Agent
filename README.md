@@ -2,20 +2,20 @@
 
 A framework-free, highly optimized Deep Research AI Agent built with pure Python, SQLite, Trafilatura, and Streamlit. Designed for real-time autonomous exploration, stateful multi-turn history tracking, relevance/recency/diversity context compilation, and advanced LLM-as-a-Judge evaluations.
 
-## 📋 Deliverables Overview
+## Deliverables Overview
 
 This project successfully implements all required deliverables for the Deep Research AI Agent challenge:
 
-- ✅ **Working App**: Fully interactive web interface built with Streamlit (`streamlit_app.py`), plus a fallback CLI orchestrator (`app.py`).
-- ✅ **Web Research Ingestion**: Real-time multi-source data retrieval using the Tavily API (`search.py` & `fetch.py`).
-- ✅ **Persistent Sessions**: Multi-turn conversational memory, query history, and rolling summaries stored in an SQLite database (`memory.py`).
-- ✅ **Citation-Grounded Answers**: Strict inline Markdown citations formatted as `[Title - Domain](URL)`, enforced via robust prompting and context prioritization.
-- ✅ **Streaming Intermediate Step Updates**: Real-time UI progress badges displaying Planning, Searching, Fetching, Selecting, and Generating phases.
-- ✅ **Evaluation Harness**: Dual-pass evaluation suite utilizing both heuristic metrics and LLM-as-a-Judge (`advanced_eval.py`).
+- **Working App**: Fully interactive web interface built with Streamlit (`streamlit_app.py`), plus a fallback CLI orchestrator (`app.py`).
+- **Web Research Ingestion**: Real-time multi-source data retrieval using the Tavily API (`search.py` & `fetch.py`).
+- **Persistent Sessions**: Multi-turn conversational memory, query history, and rolling summaries stored in an SQLite database (`memory.py`).
+- **Citation-Grounded Answers**: Strict inline Markdown citations formatted as `[Title - Domain](URL)`, enforced via robust prompting and context prioritization.
+- **Streaming Intermediate Step Updates**: Real-time UI progress badges displaying Planning, Searching, Fetching, Selecting, and Generating phases.
+- **Evaluation Harness**: Dual-pass evaluation suite utilizing both heuristic metrics and LLM-as-a-Judge (`advanced_eval.py`).
 
 ---
 
-## 🎥 Video Demo & Screenshots
+## Video Demo & Screenshots
 
 <!-- 
 GUIDE: HOW TO EMBED MEDIA IN GITHUB MARKDOWN
@@ -44,7 +44,7 @@ https://github.com/user-attachments/assets/487e1975-97e3-4a7d-96f0-434a96c4955b
 
 ---
 
-## ⚙️ Setup and Run Instructions
+## Setup and Run Instructions
 
 ### Prerequisites
 - Python 3.9+
@@ -86,7 +86,7 @@ python advanced_eval.py
 
 ---
 
-## 📝 Part 1: Design Note
+## Part 1: Design Note
 
 ### Target Users & Problem Solved
 In the modern information landscape, professionals are inundated with data yet starved of precise knowledge. Traditional search engines return links, requiring users to open multiple tabs, read dense texts, filter irrelevant details, resolve contradictions, and manually synthesize the answers. 
@@ -114,7 +114,7 @@ The agent is designed with a strict zero-dependency philosophy regarding high-le
 
 ---
 
-## 💬 Example Conversations
+## Example Conversations
 
 **Example 1: Complex Synthesis & Citation**
 > **User**: What are the main differences between the iPhone 14 Pro and iPhone 15 Pro?
@@ -133,7 +133,7 @@ The agent is designed with a strict zero-dependency philosophy regarding high-le
 
 ---
 
-## 📈 Evaluation Methodology and Findings
+## Evaluation Methodology and Findings
 
 ### Methodology
 The custom evaluation harness (`advanced_eval.py`) implements a hybrid strategy combining deterministic heuristics and LLM-as-a-Judge assessments using `llama-3.3-70b-versatile` to prevent self-evaluation bias.
@@ -152,7 +152,7 @@ Running the harness on the provided benchmark dataset (`advanced_eval_dataset.js
 
 ---
 
-## 🚧 Limitations and Future Improvements
+## Limitations and Future Improvements
 
 ### Limitations
 1. **Naive Chunking**: The current text chunking logic relies on string manipulation. It does not utilize semantic tokenizers (e.g., Tiktoken) or dense vector embeddings for retrieval, which limits context precision on extremely large documents.
